@@ -1,2 +1,3 @@
 # Raft-Distributed-Consensus
-Implementation of Raft: A distributed consensus protocol, in Go.
+
+This implementation is based on the paper [In Search of an Understandable Consensus Algorithm](https://raft.github.io/raft.pdf).
