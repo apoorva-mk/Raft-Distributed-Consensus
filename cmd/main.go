@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 
@@ -21,7 +20,5 @@ func main() {
 	if err != nil {
 		log.Panic("Error decoding config file!")
 	}
-	fmt.Println(configuration)
-
-	servermanagement.StartServer(configuration)
+	servermanagement.StartServers(configuration)
 }
