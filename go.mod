@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/SUMUKHA-PK/Basic-Golang-Server v0.0.0-20191203064337-324554cfd9e1
+	github.com/SUMUKHA-PK/GetService v0.0.0-20190617163507-d4b0655b336f
 	github.com/SUMUKHA-PK/Mail-Server v0.0.0-20190816164339-1124c969783e // indirect
 	github.com/SUMUKHA-PK/PASSMAN/server v0.0.0-20191018103922-e1ecfe905e35
 	github.com/gorilla/mux v1.7.3

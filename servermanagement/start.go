@@ -11,10 +11,11 @@ import (
 
 // StartServers starts all the servers based on the config file
 func StartServers(config types.Configuration) {
+	// since all servers in the clusters are the same,
+	// they'll have the same routing setup. Only the IP
+	// of the HTTP call will differ.
 	r := mux.NewRouter()
-	// m := make(map[string]int)
-	// r = routing.SetupRouting(r)
-	// counter := 0
+	r = setupRouting(r)
 	wg := &sync.WaitGroup{}
 	for i := range config.Servers {
 		wg.Add(1)
