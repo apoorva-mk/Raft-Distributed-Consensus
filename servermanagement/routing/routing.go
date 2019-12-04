@@ -8,6 +8,6 @@ import (
 
 // SetupRouting manages all the routes
 func SetupRouting(r *mux.Router) *mux.Router {
-	r.HandleFunc("/startRaft", StartRaft).Methods(http.MethodGet, http.MethodOptions)
+	r.HandleFunc("/startRaft", StartRaft).Methods(http.MethodPost, http.MethodOptions)
 	return r
 }

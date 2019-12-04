@@ -22,12 +22,13 @@ func main() {
 	if err != nil {
 		log.Panic("Error decoding config file!")
 	}
+	RaftServers := make(map[string]types.RaftServer)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 	go servermanagement.StartServers(configuration)
 	go func() {
 		time.Sleep(1 * time.Millisecond)
-		servermanagement.StartSignal(configuration)
+		servermanagement.StartSignal(configuration, RaftServers)
 		wg.Done()
 	}()
 	wg.Wait()
