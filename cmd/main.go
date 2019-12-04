@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/servermanagement"
 	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/types"
@@ -20,5 +22,13 @@ func main() {
 	if err != nil {
 		log.Panic("Error decoding config file!")
 	}
-	servermanagement.StartServers(configuration)
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+	go servermanagement.StartServers(configuration)
+	go func() {
+		time.Sleep(1 * time.Millisecond)
+		servermanagement.StartSignal(configuration)
+		wg.Done()
+	}()
+	wg.Wait()
 }

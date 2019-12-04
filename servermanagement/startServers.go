@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/SUMUKHA-PK/Basic-Golang-Server/server"
+	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/servermanagement/routing"
 	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/types"
 	"github.com/gorilla/mux"
 )
@@ -15,10 +16,13 @@ func StartServers(config types.Configuration) {
 	// they'll have the same routing setup. Only the IP
 	// of the HTTP call will differ.
 	r := mux.NewRouter()
-	r = setupRouting(r)
+	r = routing.SetupRouting(r)
+	// each server is started parallely using a wait group
+	// the wait group enables the parallel execution due to
+	// the blocking nature of the servers
 	wg := &sync.WaitGroup{}
+	wg.Add(len(config.Servers))
 	for i := range config.Servers {
-		wg.Add(1)
 		go func(i int) {
 			serverData := server.Data{
 				Router: r,
@@ -26,7 +30,6 @@ func StartServers(config types.Configuration) {
 				Port:   config.Servers[i].Port,
 				HTTPS:  false,
 			}
-
 			err := server.Server(&serverData)
 			if err != nil {
 				log.Fatalf("Could not start server : %v", err)
