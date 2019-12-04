@@ -14,14 +14,14 @@ import (
 func StartRaft(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("Bad request from client in routing/startExp.go : %v\n", err)
+		log.Printf("Bad request from client in startRaft.go : %v\n", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	var newReq map[string]types.RaftServer
 	err = json.Unmarshal(body, &newReq)
 	if err != nil {
-		log.Printf("Couldn't Unmarshal data in routing/startExp.go : %v\n", err)
+		log.Printf("Couldn't Unmarshal data in startRaft.go : %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
