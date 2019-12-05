@@ -10,32 +10,32 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// StartServers starts all the servers based on the config file
+// StartServers starts the servers based on the config file
+// All Servers will have same IP (i.e local host) and can share router
+// Servers will differ in the port number
 func StartServers(config types.Configuration) {
-	// since all servers in the clusters are the same,
-	// they'll have the same routing setup. Only the IP
-	// of the HTTP call will differ.
 	r := mux.NewRouter()
 	r = routing.SetupRouting(r)
-	// each server is started parallely using a wait group
-	// the wait group enables the parallel execution due to
-	// the blocking nature of the servers
+
 	wg := &sync.WaitGroup{}
-	wg.Add(len(config.Servers))
-	for i := range config.Servers {
-		go func(i string) {
-			serverData := server.Data{
-				Router: r,
-				IP:     config.Servers[i].IP,
-				Port:   config.Servers[i].Port,
-				HTTPS:  false,
-			}
-			err := server.Server(&serverData)
-			if err != nil {
-				log.Fatalf("Could not start server : %v", err)
-			}
-			wg.Done()
-		}(i)
+	wg.Add(1)
+	for _, s := range config.Servers {
+		go startServer(r, s)
 	}
 	wg.Wait()
+}
+
+func startServer(r *mux.Router, s types.Server) {
+	serverData := server.Data{
+		Router: r,
+		IP:     s.IP,
+		Port:   s.Port,
+		HTTPS:  false,
+	}
+
+	err := server.Server(&serverData)
+
+	if err != nil {
+		log.Fatalf("Could not start server %v: %v", s.URI(), err)
+	}
 }
