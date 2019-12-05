@@ -15,13 +15,24 @@ import (
 func StartSignal(config types.Configuration, RaftServers map[string]types.RaftServer) error {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(config.Servers))
-	designationMap := make(map[string]string)
-	for i := range config.Servers {
-		designationMap[config.Servers[i].IP+":"+config.Servers[i].Port] = "follower"
+	designationMap := make(map[string]types.State)
+	state := types.State{
+		Name:        "follower",
+		CurrentTerm: 0,
+		VotedFor:    -2,
+		Log:         []types.LogData{},
+		CommitIndex: -1,
+		LastApplied: -1,
+		NextIndex:   []int{},
+		MatchIndex:  []int{},
 	}
 	for i := range config.Servers {
-		RaftServers[config.Servers[i].IP+":"+config.Servers[i].Port] = types.RaftServer{"follower", config.Servers[i].IP, config.Servers[i].Port, designationMap}
+		designationMap[config.Servers[i].IP+":"+config.Servers[i].Port] = state
 	}
+	for i := range config.Servers {
+		RaftServers[config.Servers[i].IP+":"+config.Servers[i].Port] = types.RaftServer{state, i, config.Servers[i].IP, config.Servers[i].Port, designationMap}
+	}
+	// RaftServers[config.Servers[0].IP+":"+config.Servers[0].Port] = types.RaftServer{"leader", config.Servers[0].IP, config.Servers[0].Port, designationMap}
 	payload, err := json.Marshal(RaftServers)
 	if err != nil {
 		log.Printf("Can't Marshall to JSON in startSignal.go : %v\n", err)

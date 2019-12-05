@@ -25,7 +25,7 @@ func StartRaft(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("I %s am a %s\n", r.Host, newReq[r.Host].State)
+	fmt.Printf("I %s, am a %s\n", r.Host, newReq[r.Host].ServerState.Name)
 	outJSON, err := json.Marshal("Started Servers")
 	if err != nil {
 		log.Printf("Can't Marshall to JSON in startRaft.go : %v\n", err)
