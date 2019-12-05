@@ -17,7 +17,7 @@ func main() {
 		log.Panic("Error reading from config file!")
 	}
 	decoder := json.NewDecoder(file)
-	var configuration types.Configuration
+	configuration := make(map[string]types.Server)
 	err = decoder.Decode(&configuration)
 	if err != nil {
 		log.Panic("Error decoding config file!")
@@ -25,10 +25,10 @@ func main() {
 	RaftServers := make(map[string]types.RaftServer)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
-	go servermanagement.StartServers(configuration)
+	go servermanagement.StartServers(types.Configuration{configuration})
 	go func() {
 		time.Sleep(1 * time.Millisecond)
-		servermanagement.StartSignal(configuration, RaftServers)
+		servermanagement.StartSignal(types.Configuration{configuration}, RaftServers)
 		wg.Done()
 	}()
 	wg.Wait()

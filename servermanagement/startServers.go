@@ -23,7 +23,7 @@ func StartServers(config types.Configuration) {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(config.Servers))
 	for i := range config.Servers {
-		go func(i int) {
+		go func(i string) {
 			serverData := server.Data{
 				Router: r,
 				IP:     config.Servers[i].IP,
