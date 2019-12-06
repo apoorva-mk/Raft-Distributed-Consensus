@@ -18,10 +18,9 @@ func StartRaft(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	var newReq map[string]types.RaftServer
+	err = json.Unmarshal(body, &newReq)
 
-	var servers map[int]types.Server
-
-	err = json.Unmarshal(body, &servers)
 	if err != nil {
 		log.Printf("Couldn't Unmarshal data in startRaft.go: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
