@@ -13,41 +13,31 @@ import (
 // servers. Takes in the config and payload.
 // serverID ensures that the request isn't forwarded to
 // itself; parameter set to -1 to forward to all.
-func ConcurrentReqRes(servers map[int]types.Server, payload []byte, endpoint string, serverID int) error {
+func ConcurrentReqRes(servers types.Configuration, payload []byte, endPoint string, serverID string) error {
 	wg := &sync.WaitGroup{}
-	wg.Add(len(servers))
-
-	for id, server := range servers {
-		if id != serverID {
-			url := server.URL("http://", endpoint)
+	wg.Add(len(servers.Servers))
+	for k, v := range servers.Servers {
+		if k != serverID {
+			URL := "http://" + v.IP + ":" + v.Port + endPoint
 			go func() error {
-				return handleRequestResponseCycle(url, payload)
+				req, err := http.NewRequest("POST", URL, strings.NewReader(string(payload)))
+				if err != nil {
+					log.Printf("Bad request in startSignal.go : %v\n", err)
+					return err
+				}
+				req.Header.Add("Content-Type", "application/json")
+
+				res, err := http.DefaultClient.Do(req)
+				if err != nil {
+					log.Printf("Bad response in startSignal.go: %v\n", err)
+					return err
+				}
+				defer res.Body.Close()
 				wg.Done()
+				return nil
 			}()
 		}
 	}
-
 	wg.Wait()
-
-	return nil
-}
-
-func handleRequestResponseCycle(URL string, payload []byte) error {
-	req, err := http.NewRequest("POST", URL, strings.NewReader(string(payload)))
-
-	if err != nil {
-		log.Printf("Bad request created in concurrentReqRes.go : %v\n", err)
-		return err
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Printf("Bad response recieved in concurrentReqRes.go: %v\n", err)
-		return err
-	}
-
-	defer res.Body.Close()
 	return nil
 }

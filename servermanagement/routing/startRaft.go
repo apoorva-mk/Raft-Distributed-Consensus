@@ -2,6 +2,7 @@ package routing
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -20,25 +21,22 @@ func StartRaft(w http.ResponseWriter, r *http.Request) {
 	}
 	var newReq map[string]types.RaftServer
 	err = json.Unmarshal(body, &newReq)
-
 	if err != nil {
 		log.Printf("Couldn't Unmarshal data in startRaft.go: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	fmt.Printf("I %s, am a %s\n", r.Host, newReq[r.Host].ServerState.Name)
 	outJSON, err := json.Marshal("Started Servers")
 	if err != nil {
 		log.Printf("Can't Marshall to JSON in startRaft.go: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(outJSON))
 
 	err = ConcurrentReqRes(newReq[r.Host].Config, body, "/leaderElection", newReq[r.Host].ServerState.ID)
-
 	if err != nil {
 		log.Printf("Couldn't create requests to cluster in startRaft.go: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
