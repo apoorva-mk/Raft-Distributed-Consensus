@@ -36,13 +36,7 @@ func StartRaft(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(outJSON))
 
-	// if r.Host == "127.0.0.1:55550" {
-	// 	for k := range newReq[r.Host].DesignationMap {
-	// 		fmt.Println(k)
-	// 	}
-	// 	fmt.Println(newReq[r.Host].Config)
-	// }
-	err = ConcurrentReqRes(newReq[r.Host].Config, body, "/leaderElection", newReq[r.Host].DesignationMap[r.Host].ID)
+	err = ConcurrentReqRes(newReq[r.Host].Config, body, "/leaderElection", newReq[r.Host].ServerState.ID)
 	if err != nil {
 		log.Printf("Couldn't create requests to cluster in startRaft.go: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

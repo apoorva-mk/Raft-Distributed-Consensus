@@ -57,9 +57,4 @@ type State struct {
 type RaftServer struct {
 	ServerState State         `json:"serverState"`
 	Config      Configuration `json:"config"`
-	// the designation map holds the mapping to
-	// the IP of the server to the state of the
-	// server in the cluster. This is useful to
-	// send out data to necessary servers.
-	DesignationMap map[string]State `json:"designationMap"`
 }
