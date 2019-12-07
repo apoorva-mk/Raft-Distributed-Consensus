@@ -1,5 +1,7 @@
 package types
 
+import "net/http"
+
 // Server describes a single server instance in the cluster
 type Server struct {
 	IP   string `json:"ip"`
@@ -57,4 +59,10 @@ type State struct {
 type RaftServer struct {
 	ServerState State         `json:"serverState"`
 	Config      Configuration `json:"config"`
+}
+
+// URLResponse facilitates responses for ConcurrentReqRes
+type URLResponse struct {
+	URL string
+	Res *http.Response
 }

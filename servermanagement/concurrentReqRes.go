@@ -1,4 +1,4 @@
-package routing
+package servermanagement
 
 import (
 	"log"
@@ -13,7 +13,8 @@ import (
 // servers. Takes in the config and payload.
 // serverID ensures that the request isn't forwarded to
 // itself; parameter set to -1 to forward to all.
-func ConcurrentReqRes(servers types.Configuration, payload []byte, endPoint string, serverID string) error {
+func ConcurrentReqRes(servers types.Configuration, payload []byte, endPoint string, serverID string) ([]types.URLResponse, error) {
+	var responses []types.URLResponse
 	wg := &sync.WaitGroup{}
 	wg.Add(len(servers.Servers))
 	for k, v := range servers.Servers {
@@ -32,6 +33,7 @@ func ConcurrentReqRes(servers types.Configuration, payload []byte, endPoint stri
 					log.Printf("Bad response in startSignal.go: %v\n", err)
 					return err
 				}
+				responses = append(responses, types.URLResponse{URL, res})
 				defer res.Body.Close()
 				wg.Done()
 				return nil
@@ -39,5 +41,5 @@ func ConcurrentReqRes(servers types.Configuration, payload []byte, endPoint stri
 		}
 	}
 	wg.Wait()
-	return nil
+	return responses, nil
 }
