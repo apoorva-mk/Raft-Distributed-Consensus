@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	leaderelection "github.com/SUMUKHA-PK/Raft-Distributed-Consensus/raft/leaderElection"
 	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/types"
 )
 
@@ -36,10 +37,5 @@ func StartRaft(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(outJSON))
 
-	err = ConcurrentReqRes(newReq[r.Host].Config, body, "/leaderElection", newReq[r.Host].ServerState.ID)
-	if err != nil {
-		log.Printf("Couldn't create requests to cluster in startRaft.go: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	leaderelection.LeaderElection(newReq)
 }
