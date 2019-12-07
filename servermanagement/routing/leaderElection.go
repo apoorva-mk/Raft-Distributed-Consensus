@@ -19,6 +19,7 @@ func StartLeaderElection(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	var newReq map[string]types.RaftServer
 	err = json.Unmarshal(body, &newReq)
 	if err != nil {
