@@ -2,13 +2,14 @@ package routing
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/types"
 )
+
+var c int = 0
 
 // StartLeaderElection initiates leader election.
 func StartLeaderElection(w http.ResponseWriter, r *http.Request) {
@@ -25,5 +26,4 @@ func StartLeaderElection(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("W")
 }
