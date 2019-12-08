@@ -11,31 +11,21 @@ import (
 )
 
 // LeaderElection implements Raft leader election
-func LeaderElection(raftServers map[string]types.RaftServer, IP string) {
-	incrementTermAndBecomeCandidate(raftServers, IP)
-	log.Printf("%s incremented term to %d\n", IP, raftServers[IP].ServerState.CurrentTerm)
-
-	votes := make(chan int)
-
+func LeaderElection(config types.Configuration, IP string) {
+	incrementTermAndBecomeCandidate(IP)
+	log.Printf("%s incremented term to %d\n", IP, types.ServerData[IP].CurrentTerm)
+	voteChan := make(chan int)
 	timer := getTimer(150, 650, IP)
-
-	go func() {
-		requestvotes.RequestVotes(raftServers, IP, timer, votes)
-	}()
-	// go func() {
-	// 	fmt.Printf("dd%vdd", <-timer.C)
-	// 	fmt.Println("Timer expired")
-	// }()
-
-	fmt.Println(<-votes)
-
+	requestvotes.RequestVotes(config, IP, timer, voteChan)
+	votes := <-voteChan
+	fmt.Printf("Votes for %s is %d\n", IP, votes)
 }
 
-func incrementTermAndBecomeCandidate(raftServer map[string]types.RaftServer, IP string) {
-	state := raftServer[IP]
-	state.ServerState.CurrentTerm++
-	state.ServerState.Name = "candidate"
-	raftServer[IP] = state
+func incrementTermAndBecomeCandidate(IP string) {
+	state := types.ServerData[IP]
+	state.CurrentTerm++
+	state.Name = "candidate"
+	types.ServerData[IP] = state
 }
 
 func getTimer(min, max int, IP string) *time.Timer {

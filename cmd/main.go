@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -17,11 +18,12 @@ func main() {
 		log.Panic("Error reading from config file!")
 	}
 	decoder := json.NewDecoder(file)
-	configuration := make(map[string]types.Server)
+	configuration := make(map[int]types.Server)
 	err = decoder.Decode(&configuration)
 	if err != nil {
 		log.Panic("Error decoding config file!")
 	}
+	fmt.Println(configuration)
 	RaftServers := make(map[string]types.RaftServer)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
