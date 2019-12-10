@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/SUMUKHA-PK/Basic-Golang-Server/server"
-	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/servermanagement/routing"
+	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/routing"
 	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/types"
 	"github.com/gorilla/mux"
 )
@@ -23,7 +23,7 @@ func StartServers(config types.Configuration) {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(config.Servers))
 	for i := range config.Servers {
-		go func(i string) {
+		go func(i int) {
 			serverData := server.Data{
 				Router: r,
 				IP:     config.Servers[i].IP,

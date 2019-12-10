@@ -2,7 +2,6 @@ package routing
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -27,7 +26,10 @@ func StartRaft(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("I %s, am a %s\n", r.Host, newReq[r.Host].ServerState.Name)
+	// save self state
+	state := newReq[r.Host].ServerState
+	types.ServerData[r.Host] = &state
+	log.Printf("Start raft signal received at %s, currently a %s\n", r.Host, newReq[r.Host].ServerState.Name)
 	outJSON, err := json.Marshal("Started Servers")
 	if err != nil {
 		log.Printf("Can't Marshall to JSON in startRaft.go: %v\n", err)
@@ -37,5 +39,5 @@ func StartRaft(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(outJSON))
 
-	leaderelection.LeaderElection(newReq)
+	leaderelection.LeaderElection(newReq[r.Host].Config, r.Host)
 }

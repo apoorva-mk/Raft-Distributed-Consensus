@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/servermanagement/routing"
+	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/general"
 	"github.com/SUMUKHA-PK/Raft-Distributed-Consensus/types"
 )
 
@@ -33,5 +33,6 @@ func StartSignal(config types.Configuration, RaftServers map[string]types.RaftSe
 		log.Printf("Can't Marshall to JSON in startSignal.go : %v\n", err)
 		return err
 	}
-	return routing.ConcurrentReqRes(config, payload, "/startRaft", "-1")
+	_, err = general.ConcurrentReqRes(config, payload, "/startRaft", -1)
+	return err
 }

@@ -17,7 +17,7 @@ func main() {
 		log.Panic("Error reading from config file!")
 	}
 	decoder := json.NewDecoder(file)
-	configuration := make(map[string]types.Server)
+	configuration := make(map[int]types.Server)
 	err = decoder.Decode(&configuration)
 	if err != nil {
 		log.Panic("Error decoding config file!")
