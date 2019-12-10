@@ -38,14 +38,14 @@ func ConcurrentReqRes(servers types.Configuration, payload []byte, endPoint stri
 					return err
 				}
 				resCh <- types.URLResponse{URL, res}
-				// defer res.Body.Close()
 				wg.Done()
 				return nil
 			}()
 		}
 	}
 	var responses []types.URLResponse
-	go func() { wg.Wait(); close(resCh) }()
+	wg.Wait()
+	close(resCh)
 	for x := range resCh {
 		responses = append(responses, x)
 	}
