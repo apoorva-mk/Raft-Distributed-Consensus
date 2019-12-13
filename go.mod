@@ -9,6 +9,7 @@ require (
 	github.com/SUMUKHA-PK/PASSMAN/server v0.0.0-20191018103922-e1ecfe905e35
 	github.com/gorilla/mux v1.7.3
 	github.com/lib/pq v1.2.0 // indirect
+	github.com/mozilla/mig v0.0.0-20190913234010-9e7e4f525805
 	golang.org/x/crypto v0.0.0-20191202143827-86a70503ff7e // indirect
 	golang.org/x/net v0.0.0-20191126235420-ef20fe5d7933 // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
