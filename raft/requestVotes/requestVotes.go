@@ -26,9 +26,9 @@ func RequestVotes(config types.Configuration, IP string, timer *time.Timer, fina
 	var voteRes []types.URLResponse
 	wg.Add(1)
 	go func() {
-		payload, err := json.Marshal(config)
+		payload, err := json.Marshal(types.ReqVotesRequest{config, types.ServerData[IP].CurrentTerm, types.ServerData[IP].ID, -1, -1})
 		if err != nil {
-			log.Printf("Can't Marshall to JSON in startSignal.go : %v\n", err)
+			log.Printf("Can't Marshall to JSON in requestVotes.go: %v\n", err)
 		}
 		voteRes, err = general.ConcurrentReqRes(config, []byte(payload), "/requestVotes", types.ServerData[IP].ID)
 		if err != nil {
@@ -46,13 +46,13 @@ func getVotes(voteRes []types.URLResponse) int {
 	for i := range voteRes {
 		body, err := ioutil.ReadAll(voteRes[i].Res.Body)
 		if err != nil {
-			log.Printf("Bad request from client in startRaft.go: %v\n", err)
+			log.Printf("Bad request from client in requestVotes.go: %v\n", err)
 
 		}
 		var newReq int
 		err = json.Unmarshal(body, &newReq)
 		if err != nil {
-			log.Printf("Couldn't Unmarshal data in startRaft.go: %v\n", err)
+			log.Printf("Couldn't Unmarshal data in requestVotes.go: %v\n", err)
 		}
 		if newReq == 1 {
 			count++

@@ -18,7 +18,7 @@ func RequestVotes(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var newReq ReqVotesRequest
+	var newReq types.ReqVotesRequest
 	err = json.Unmarshal(body, &newReq)
 	if err != nil {
 		log.Printf("Couldn't Unmarshal data in requestVotes.go: %v\n", err)
@@ -26,7 +26,7 @@ func RequestVotes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	state := types.ServerData[r.Host]
-	vote := voting(state, r.Host, newReq.ServerID)
+	vote := voting(state, r.Host, newReq.CandidateID, newReq.Term)
 	outJSON, err := json.Marshal(vote)
 	if err != nil {
 		log.Printf("Can't Marshall to JSON in requestVotes.go: %v\n", err)
@@ -37,12 +37,13 @@ func RequestVotes(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(outJSON))
 }
 
-func voting(state *types.State, IP string, RemoteID int) (vote int) {
+func voting(state *types.State, IP string, RemoteID int, Term int) (vote int) {
 	state.Lock.Lock()
-	if state.VotedFor == -2 {
+	if (state.CurrentTerm == Term && state.VotedFor == -2) || state.CurrentTerm < Term {
 		log.Printf("I %s can vote\n", IP)
 		vote = 1
 		state.VotedFor = RemoteID
+		// state.CurrentTerm = Term
 	} else {
 		log.Printf("I %s cant vote\n", IP)
 		vote = 0

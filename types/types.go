@@ -76,3 +76,18 @@ type URLResponse struct {
 	URL string         `json:"URL"`
 	Res *http.Response `json:"res"`
 }
+
+// ReqVotesRequest represents a requestVote request structure
+type ReqVotesRequest struct {
+	Data         Configuration `json:"data"`
+	Term         int           `json:"term"`
+	CandidateID  int           `json:"candidateID"`
+	LastLogIndex int           `json:"lastLogIndex"`
+	LastLogTerm  int           `json:"lastLogTerm"`
+}
+
+// AppendEntriesReq represents an AppendEntires request
+type AppendEntriesReq struct {
+	Data     LogData
+	ServerID int
+}
