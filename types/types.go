@@ -1,7 +1,9 @@
 package types
 
 import (
+	"encoding/json"
 	"net/http"
+	"os"
 	"sync"
 )
 
@@ -75,4 +77,39 @@ type RaftServer struct {
 type URLResponse struct {
 	URL string         `json:"URL"`
 	Res *http.Response `json:"res"`
+}
+
+// Builds a Configuration using filepath
+func BuildConfigurationFromConfigFile(filepath string) (Configuration, error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return Configuration{nil}, err
+	}
+
+	servers := make(map[int]Server)
+
+	err = json.NewDecoder(file).Decode(&servers)
+	if err != nil {
+		return Configuration{nil}, err
+	}
+	return Configuration{servers}, nil
+}
+
+// Maps IP to Current State of Server
+func BuildServerData(config Configuration) map[string]*State {
+	serverData := make(map[string]*State)
+	for i, server := range config.Servers {
+		serverData[server.IP+":"+server.Port] = &State{
+			Name:        "follower",
+			ID:          i,
+			CurrentTerm: 0,
+			VotedFor:    -2,
+			Log:         []LogData{},
+			CommitIndex: -1,
+			LastApplied: -1,
+			NextIndex:   []int{},
+			MatchIndex:  []int{},
+		}
+	}
+	return serverData
 }
