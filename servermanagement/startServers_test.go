@@ -41,7 +41,8 @@ func TestStartServer(t *testing.T) {
 	go StartServers(types.Configuration{testConfiguration})
 	foundIP, _, _ := netstat.HasIPConnected(IP)
 	foundPort, _, _ := netstat.HasListeningPort(port)
-	// TODO : fix the issue of why IP is shown as not being used.
+	// TODO : fix the issue of why IP is shown as not being used. 
+	// Also, check that StartServers doesn't happen after checking for IP and port.
 	if foundPort == false {
 		t.Errorf("Error in StartServer.go : unable to start server with given IP and port number")
 		log.Println(foundIP, foundPort)
