@@ -1,7 +1,6 @@
 package leaderelection
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -12,25 +11,28 @@ import (
 )
 
 // LeaderElection implements Raft leader election
+// The election process is initially started by all servers
+// concurrently. The fastest on
 func LeaderElection(config types.Configuration, IP string) bool {
-	// if this server became the leader
-	if findLeader(config, IP) {
-		appendentries.AppendEntries(config, IP)
-		return true
+	if types.ServerData[IP].VotedFor == -2 {
+		// if this server became the leader
+		if findLeader(config, IP) {
+			appendentries.AppendEntries(config, IP)
+			return true
+		}
 	}
 	// checking for a heartbeat from some other leader
 	// first the server waits for a heartbeat with a
 	// timeout. And later checks if there was an
 	// appendEntries from a peer by checking its state.
-
 	leaderFoundFlag := 0
-	heartBeatTimeOut := getTimer(250, 400, IP)
+	heartBeatTimeOut := getTimer(150, 300, IP)
 	<-heartBeatTimeOut.C
 	if types.ServerData[IP].Name == "follower" {
 		leaderFoundFlag = 1
 	} else {
 		types.ServerData[IP].VotedFor = -2
-		fmt.Printf("%s set value to -2\n", IP)
+		// fmt.Printf("%s set value to -2\n", IP)
 	}
 	if leaderFoundFlag == 1 {
 		return true
@@ -45,6 +47,11 @@ func findLeader(config types.Configuration, IP string) bool {
 	timer := getTimer(150, 300, IP)
 	requestvotes.RequestVotes(config, IP, timer, voteChan)
 	votes := <-voteChan
+	// vote for one-self only if the vote hasn't been given
+	if types.ServerData[IP].VotedFor == -2 {
+		types.ServerData[IP].VotedFor = -1
+		votes++
+	}
 	log.Printf("Votes for %s is %d\n", IP, votes)
 	numberServers := len(config.Servers)
 	if votes > numberServers/2 {

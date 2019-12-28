@@ -40,10 +40,10 @@ func RequestVotes(w http.ResponseWriter, r *http.Request) {
 func voting(state *types.State, IP string, RemoteID int, Term int) (vote int) {
 	state.Lock.Lock()
 	if (state.CurrentTerm == Term && state.VotedFor == -2) || state.CurrentTerm < Term {
-		log.Printf("I %s can vote\n", IP)
 		vote = 1
 		state.VotedFor = RemoteID
-		// state.CurrentTerm = Term
+		state.CurrentTerm = Term
+		log.Printf("%s voted for %d\n", IP, state.VotedFor)
 	} else {
 		log.Printf("I %s cant vote\n", IP)
 		vote = 0

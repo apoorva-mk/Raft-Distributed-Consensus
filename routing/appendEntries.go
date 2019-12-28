@@ -12,6 +12,7 @@ import (
 func AppendEntries(w http.ResponseWriter, r *http.Request) {
 	types.ServerData[r.Host].Name = "follower"
 	vote := 1
+	// fmt.Println("In append entries")
 	outJSON, err := json.Marshal(vote)
 	if err != nil {
 		log.Printf("Can't Marshall to JSON in requestVotes.go: %v\n", err)
