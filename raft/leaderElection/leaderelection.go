@@ -26,7 +26,7 @@ func LeaderElection(config types.Configuration, IP string) bool {
 	// timeout. And later checks if there was an
 	// appendEntries from a peer by checking its state.
 	leaderFoundFlag := 0
-	heartBeatTimeOut := getTimer(150, 300, IP)
+	heartBeatTimeOut, _ := getTimer(150, 300)
 	<-heartBeatTimeOut.C
 	if types.ServerData[IP].Name == "follower" {
 		leaderFoundFlag = 1
@@ -38,13 +38,23 @@ func LeaderElection(config types.Configuration, IP string) bool {
 		return true
 	}
 	return false
+
+	// types.ServerData[IP] = incrementTermAndBecomeCandidate(types.ServerData, IP)
+	// log.Printf("%s incremented term to %d\n", IP, types.ServerData[IP].CurrentTerm)
+
+	// if majorityObtained(votes, config) {
+	// 	log.Printf("%v is elected as a leader", IP)
+	// }
 }
 
 func findLeader(config types.Configuration, IP string) bool {
-	incrementTermAndBecomeCandidate(IP)
+	incrementTermAndBecomeCandidate(types.ServerData, IP)
 	log.Printf("%s incremented term to %d\n", IP, types.ServerData[IP].CurrentTerm)
 	voteChan := make(chan int)
-	timer := getTimer(150, 300, IP)
+	rand.Seed(time.Now().UnixNano())
+	timer, duration := getTimer(150, 300)
+	log.Printf("%s set timeout at %d\n", IP, duration)
+
 	requestvotes.RequestVotes(config, IP, timer, voteChan)
 	votes := <-voteChan
 	// vote for one-self only if the vote hasn't been given
@@ -60,40 +70,22 @@ func findLeader(config types.Configuration, IP string) bool {
 	return false
 }
 
-func incrementTermAndBecomeCandidate(IP string) {
-	state := types.ServerData[IP]
+func incrementTermAndBecomeCandidate(ServerData map[string]*types.State, IP string) *types.State {
+	state := ServerData[IP]
 	state.CurrentTerm++
 	state.Name = "candidate"
 	state.VotedFor = -2
 	types.ServerData[IP] = state
+	return state
 }
 
-func getTimer(minTimeout, maxTimeout int, IP string) *time.Timer {
-	rand.Seed(time.Now().UnixNano())
+// Assumes random value has been seeded
+// Returns a timer and it's duration in milliseconds
+func getTimer(minTimeout, maxTimeout int) (*time.Timer, int) {
 	timeOut := rand.Intn(maxTimeout-minTimeout) + minTimeout
-	log.Printf("%s set timeout at %d\n", IP, timeOut)
-	return time.NewTimer(time.Duration(timeOut) * time.Millisecond)
+	return time.NewTimer(time.Duration(timeOut) * time.Millisecond), timeOut
 }
 
-/*
-
-	// wg := sync.WaitGroup{}
-	// wg.Add(1)
-	// go func() {
-	// case where this server isnt the leader
-	for !findLeader(config, IP) {
-
-		// log.Println("No leader found, repeating election")
-	}
-	// 	wg.Done()
-	// }()
-	// wg.Add(1)
-	// go func() {
-	if leaderFoundFlag == 0 {
-		// case where this server is the leader
-		appendentries.AppendEntries(config, IP)
-	}
-	// 	wg.Done()
-	// }()
-	// wg.Wait()
-*/
+func majorityObtained(votes int, config types.Configuration) bool {
+	return len(config.Servers)/2 < votes
+}
