@@ -38,6 +38,8 @@ func RequestVotes(config types.Configuration, IP string, timer *time.Timer, fina
 		wg.Done()
 	}()
 	vote = getVotes(<-resCh)
+	//candidate votes for itself
+	vote++
 	wg.Wait()
 }
 
