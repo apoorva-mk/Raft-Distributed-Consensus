@@ -45,7 +45,7 @@ func voting(state *types.State, IP string, RemoteID int, Term int) (vote int) {
 		state.CurrentTerm = Term
 		log.Printf("%s voted for %d\n", IP, state.VotedFor)
 	} else {
-		log.Printf("I %s cant vote\n", IP)
+		log.Printf("I %s cant vote for %d\n", IP, RemoteID)
 		vote = 0
 	}
 	state.Lock.Unlock()
